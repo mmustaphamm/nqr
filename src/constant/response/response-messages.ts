@@ -11,12 +11,7 @@ const responseMessages = {
     mysqlConnect: "Connected to MySql Database",
     mysqlTerminate: "MySql terminated. Process ended",
     mysqlConnectionOnQueue: "MySql connection is on queue",
-    mysqlReleased: "MySql released",
-    
-    dataNotFound: "Data not found",
-    couldNotCreate: "Data could not be created",
-    couldNotDelete: "Data could not be deleted",
-    attributeRequired: "Expected request atribute not supplied"
+    mysqlReleased: "MySql released",   
 }
 
 export default responseMessages

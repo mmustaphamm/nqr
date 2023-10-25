@@ -1,4 +1,4 @@
-import { IPaymentRail, baseUrl } from "./interface/kredi.interface"
+import { IPaymentRail, IbaseUrl } from "./interface/kredi.interface"
 import * as dotenv from "dotenv"
 dotenv.config()
 
@@ -13,6 +13,9 @@ export const paymentRail: IPaymentRail = {
     tsqUrl: process.env.TSQ_URL as string
 }
 
-export const baseUrls: baseUrl = {
-    userService: process.env.USER_SERVICE as string
+export const baseUrls: IbaseUrl = {
+    userService: process.env.USER_SERVICE as string,
+    cbaBaseUrl: process.env.CBA_BASE_URL as string,
+    cbaAuth: process.env.CBA_AUTH as string,
+    cbaHeader: process.env.CBA_HEADER as string,
 }

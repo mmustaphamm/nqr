@@ -1,0 +1,70 @@
+{
+  message: '::1 : POST /api/create-merchant 400 :BadRequestError Provide authentication credentials ',
+  level: 'error',
+  timestamp: '2023-10-18T07:40:27.653Z'
+}
+{
+  message: '::1 : POST /api/create-merchant 400 :BadRequestError Error: connect ECONNREFUSED 127.0.0.1:80 ',
+  level: 'error',
+  timestamp: '2023-10-18T07:41:40.603Z'
+}
+{
+  message: '::1 : POST /api/create-merchant 400 :BadRequestError Provide authentication credentials ',
+  level: 'error',
+  timestamp: '2023-10-18T07:49:31.824Z'
+}
+{
+  message: '::1 : POST /api/create-merchant 400 :BadRequestError Error: connect ECONNREFUSED 127.0.0.1:80 ',
+  level: 'error',
+  timestamp: '2023-10-18T07:57:30.586Z'
+}
+{
+  message: '::1 : POST /api/create-merchant 401 :UnauthorizeRequestError Unauthorized attempt! provide your signature ',
+  level: 'error',
+  timestamp: '2023-10-18T08:36:40.784Z'
+}
+{
+  message: '::1 : POST /api/create-merchant 401 :UnauthorizeRequestError Unauthorized attempt! provide your signature ',
+  level: 'error',
+  timestamp: '2023-10-18T08:37:00.081Z'
+}
+{
+  message: '::1 : POST /api/create-merchant 401 :UnauthorizeRequestError Unauthorized attempt! provide your signature ',
+  level: 'error',
+  timestamp: '2023-10-18T08:37:58.980Z'
+}
+{
+  message: '::1 : POST /api/create-merchant 401 :UnauthorizeRequestError Unauthorized attempt! provide your signature ',
+  level: 'error',
+  timestamp: '2023-10-18T08:38:43.733Z'
+}
+{
+  message: "::1 : POST /api/create-merchant 400 :BadRequestError TypeError: Cannot read properties of null (reading 'id') ",
+  level: 'error',
+  timestamp: '2023-10-18T08:38:52.378Z'
+}
+{
+  message: '::1 : POST /api/create-merchant 400 :BadRequestError "account_number" length must be 10 characters long ',
+  level: 'error',
+  timestamp: '2023-10-22T10:16:12.453Z'
+}
+{
+  message: '::1 : POST /api/create-merchant 400 :BadRequestError "account_number" length must be 10 characters long ',
+  level: 'error',
+  timestamp: '2023-10-22T10:18:22.051Z'
+}
+{
+  message: '::1 : POST /api/create-submerchant 400 :BadRequestError "phone" is required ',
+  level: 'error',
+  timestamp: '2023-10-22T20:41:02.811Z'
+}
+{
+  message: '::1 : POST /api/create-submerchant 400 :BadRequestError "phone" is required ',
+  level: 'error',
+  timestamp: '2023-10-22T20:41:22.577Z'
+}
+{
+  message: '::1 : POST /api/create-submerchant 400 :BadRequestError "phone" is required ',
+  level: 'error',
+  timestamp: '2023-10-22T20:41:24.942Z'
+}

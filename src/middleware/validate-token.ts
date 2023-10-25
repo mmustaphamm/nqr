@@ -3,12 +3,12 @@ import { NextFunction, Request, Response } from "express";
 import BadRequestError from "../loader/error-handler/BadRequestError";
 import NotAuthorizeError from "../loader/error-handler/NotAuthorizeError";
 import { ApiServices } from "../common/ApiServices";
-import { merchantData } from '../feature/Auth/interface/service.interface';
 import { createHash } from 'crypto';
-import { WebhookService } from '../feature/webhook/webhook.service';
-import { IWebhook } from '../feature/webhook/interface/service.interface';
+import { WebhookService } from "../features/webhook/webhook.service";
+import { IWebhook } from "../features/webhook/interface/service.interface";
 import ForbiddenError from '../loader/error-handler/ForbiddenError';
 import app from '../config/app';
+import { Utils } from "../common/Utils";
 
 
 const signatureVerification = async (
@@ -16,31 +16,31 @@ const signatureVerification = async (
     res: Response,
     next: NextFunction
 ) => {
-    const partner = res.locals.partner
+    //const partner = res.locals.partner
     const signatureKey = req.headers['signature-key']
-    const { transaction_reference, transaction_amount } = req.body
+    //const { mch, timestamp } = req.body
 
-    if (!partner || !signatureKey || !transaction_amount || !transaction_reference) {
+    if ( !signatureKey ) {
         return next(new NotAuthorizeError('Unauthorized attempt! provide your signature'))
     }
 
-    const webhook: IWebhook | null = await WebhookService.getWebhookByPartner(partner.id, 'outward')
-
-    if (!webhook) return next(new NotAuthorizeError('provide your secret key'))
 
     // compute signature
-    const mac: string = createHash('sha512').update(
-        `${transaction_amount}-${webhook.secret_key}-${transaction_reference}`
+    const sortedPayload = Object.entries(req.body)
+    .sort(([a], [b]) => a.localeCompare(b))
+    .map(([key, value]) => `${key}=${value}`)
+    .join('&');
+    const mac: string = createHash('md5').update(
+        `${sortedPayload}`
     ).digest('hex');
 
-    // terminate if signature does not match
+   // terminate if signature does not match
     if (mac !== signatureKey) {
         console.log(mac)
         return next(new ForbiddenError('Forbidden! unauthenticated'))
     }
 
-    return webhook
-
+    return 
 }
 
 
@@ -63,7 +63,7 @@ const validateToken = async (
         [bearer, token] = authorization.split(" ");
 
         if (bearer !== "Bearer") {
-            res.set("WWW-Authenticate", "Bearer realm= Access Token , charset=UTF-8")
+            res.set("WWW-Authenticate", "Bearer realm= Access Token, charset=UTF-8")
             return next(
                 new NotAuthorizeError("Bad Request  :Invalid Authorization")
             );
@@ -75,7 +75,7 @@ const validateToken = async (
 
         if (!cacheData) {
             // call the Auth service
-            const apiData = await ApiServices.getPartner(token, apiKey)
+            const apiData = await ApiServices.getPartner(token, `${apiKey}`)
             partner = apiData?.data?.data
             if (partner.id && partner?.glId) {
                 //await cache.set(`${token}${apiKey}`, partner)
@@ -87,17 +87,15 @@ const validateToken = async (
 
         console.log("merchant authenticated")
         res.locals.partner = partner || null
-        let webhook: IWebhook | null = null
+        let webhook;
 
         // don't require signature on the local env
         if (app.server.env !== 'local') {
             webhook = await signatureVerification(req, res, next)
         } else {
-            webhook = await WebhookService.getWebhookByPartner(partner.id, 'outward')
+            webhook = await WebhookService.getWebhookByPartner(partner.id, 'inward')
             if (!webhook) return next(new NotAuthorizeError('provide your secret key'))
         }
-
-        res.locals.webhook = webhook
         next();
 
     } catch (error: any) {

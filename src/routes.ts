@@ -1,18 +1,9 @@
-import { Router, Request, Response } from "express";
-import Constant from "./constant";
-import merchantRouter from "./features/merchant/merchant.routes"
+import { Router } from "express";
+import merchantRouter from "./features/gateway/merchant.routes"
+import validateToken from "./middleware/validate-token";
 
 
 const router = Router();
-
-router.get("/test", async (req: Request, res: Response) => {
- 
-  res.status(Constant.statusCode.OK).json({
-    success: true,
-    message: Constant.messages.apiHealth,
-    data: { code: Constant.statusCode.OK},
-  });
-});
 
 router.use("/api", merchantRouter);
 

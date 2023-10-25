@@ -1,153 +1,48 @@
-import axios, { AxiosRequestConfig, AxiosResponse, AxiosError } from 'axios';
-import { QueryAcct } from '../features/merchant/interface/merchant.interface';
-import {  CreateMerchantPayload, MerchantInfo, SubMerchantPayload } from "../features/merchant/interface/merchant.interface"
-import { error } from 'console';
-import { url } from 'inspector';
-
-
+import axios, { AxiosResponse } from 'axios';
+import { paymentRail, baseUrls } from "../config/kredi"
 
 export class ApiServices {
-  static async merchantQuery<T>({timestamp, account_number, sign}): Promise<T | any > {
 
-    try {
-      const url = process.env.QUERY_ACCT_URL as string;
-      const channel = process.env.CHANNEL_NO as string
-      const institution_number = process.env.INSTITUTION_NUMBER as string
-      const bank_number = process.env.BANK_NUMBER as string
+  static readonly paymentBaseUrl: string = paymentRail.accounts[paymentRail.account]
+  static readonly walletBaseUrl: string = baseUrls.userService
 
-      const payload = {institution_number, channel, bank_number, account_number, timestamp, sign }
-
-      const token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Ii1LSTNROW5OUjdiUm9meG1lWm9YcWJIWkdldyJ9.eyJhdWQiOiI2Mjc3NDdhYy03YmI0LTQxZDctOGI5OC03NTZmMWQwMjVhMGQiLCJpc3MiOiJodHRwczovL2xvZ2luLm1pY3Jvc29mdG9ubGluZS5jb20vMjc5YzdiMWItYmEwNi00MjdiLWE2ODEtYzhhNTQ5MmQyOTNkL3YyLjAiLCJpYXQiOjE2OTY1MTMwMjAsIm5iZiI6MTY5NjUxMzAyMCwiZXhwIjoxNjk2NTE2OTIwLCJhaW8iOiJFMkZnWU1nb2NtaWFFSDU3aWtIampGMHRpeXhYV0dwRjdQTys5cmdwYUdiYi9weS92M1VCIiwiYXpwIjoiNjI3NzQ3YWMtN2JiNC00MWQ3LThiOTgtNzU2ZjFkMDI1YTBkIiwiYXpwYWNyIjoiMSIsInJoIjoiMC5BWUlBRzN1Y0p3YTZlMEttZ2NpbFNTMHBQYXhIZDJLMGU5ZEJpNWgxYngwQ1dnMkNBQUEuIiwidGlkIjoiMjc5YzdiMWItYmEwNi00MjdiLWE2ODEtYzhhNTQ5MmQyOTNkIiwidXRpIjoid0FxWUF0cXR4RUdqaERrMlpoeUpBQSIsInZlciI6IjIuMCJ9.QODK7Wmw_zHXINU9yssvmkBXXv8sPMK0b-1-gxhgD2SsWpfi9qmpl0C_iZWbbaRh0reO1w35mm3jR6bBYeaX68XwX6RVqMiRqapXjrUifqYUnvgkIQUJdexjEenSqK38xEzhCfmFJFm8_JowjqAuEhbMTVLR80thnX3cTCF1iVNizmaKmf3NGIZzE0Aadm55QcN4I_xRiSSZJcl1ZMpS_ablhFsGc7OB2HZ_OEheEG8pDc3kFcxU-SZ4FPhsH2JZL53xF3S-eXVPHaDXE2mzX9EDyAJYi50eSk6fZuyy4k5uqwdtrl8-iIDcUKhZjWeKDcsdu40-244E_maPcaE9hw"
-      const headers = {
-        Authorization: `Bearer ${token}`,
-        'Content-Type': 'application/json'
-      };
-
-      const response: AxiosResponse<any> = await axios.post(url, payload, { headers });
-      const data = response.data;
-      console.log(data)
-      if (data.ReturnCode == "Success") {
-        return data
-      } else {
-        throw new Error(`Error querying account ${data.ReturnMsg}`)
-      }
-    } catch (error) {
-      if (axios.isAxiosError(error)) {
-        console.log(`Axios Error: ${error.message}`);
-        throw error
-      } else {
-        throw error;
-      }
-    }
+  static async getPartner(token: string, key: string): Promise<any> {
+    const http = axios.create({
+        baseURL: ApiServices.walletBaseUrl,
+        headers: {
+            Authorization: `Bearer ${token}`,
+            'x-api-key': key
+        }
+    })
+    return await http.get("api/v2/partner/ids");
   }
 
-    static async createMerchant<T>(payload:CreateMerchantPayload): Promise<any> {
-        try {
+  static async nqrGateway<T>(payload, url: string): Promise<any> {
 
-   
-          const token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6Ii1LSTNROW5OUjdiUm9meG1lWm9YcWJIWkdldyJ9.eyJhdWQiOiI2Mjc3NDdhYy03YmI0LTQxZDctOGI5OC03NTZmMWQwMjVhMGQiLCJpc3MiOiJodHRwczovL2xvZ2luLm1pY3Jvc29mdG9ubGluZS5jb20vMjc5YzdiMWItYmEwNi00MjdiLWE2ODEtYzhhNTQ5MmQyOTNkL3YyLjAiLCJpYXQiOjE2OTY1MTMwMjAsIm5iZiI6MTY5NjUxMzAyMCwiZXhwIjoxNjk2NTE2OTIwLCJhaW8iOiJFMkZnWU1nb2NtaWFFSDU3aWtIampGMHRpeXhYV0dwRjdQTys5cmdwYUdiYi9weS92M1VCIiwiYXpwIjoiNjI3NzQ3YWMtN2JiNC00MWQ3LThiOTgtNzU2ZjFkMDI1YTBkIiwiYXpwYWNyIjoiMSIsInJoIjoiMC5BWUlBRzN1Y0p3YTZlMEttZ2NpbFNTMHBQYXhIZDJLMGU5ZEJpNWgxYngwQ1dnMkNBQUEuIiwidGlkIjoiMjc5YzdiMWItYmEwNi00MjdiLWE2ODEtYzhhNTQ5MmQyOTNkIiwidXRpIjoid0FxWUF0cXR4RUdqaERrMlpoeUpBQSIsInZlciI6IjIuMCJ9.QODK7Wmw_zHXINU9yssvmkBXXv8sPMK0b-1-gxhgD2SsWpfi9qmpl0C_iZWbbaRh0reO1w35mm3jR6bBYeaX68XwX6RVqMiRqapXjrUifqYUnvgkIQUJdexjEenSqK38xEzhCfmFJFm8_JowjqAuEhbMTVLR80thnX3cTCF1iVNizmaKmf3NGIZzE0Aadm55QcN4I_xRiSSZJcl1ZMpS_ablhFsGc7OB2HZ_OEheEG8pDc3kFcxU-SZ4FPhsH2JZL53xF3S-eXVPHaDXE2mzX9EDyAJYi50eSk6fZuyy4k5uqwdtrl8-iIDcUKhZjWeKDcsdu40-244E_maPcaE9hw"
-          const channel = process.env.CHANNEL_NO as string
-          const institution_number = process.env.INSTITUTION_NUMBER as string
-          const bank_number = process.env.BANK_NUMBER as string
-
+    try {
+      const token = "eyJ0eXAiOiJKV1QiLCJhbGciOiJSUzI1NiIsImtpZCI6IjlHbW55RlBraGMzaE91UjIybXZTdmduTG83WSJ9.eyJhdWQiOiI2Mjc3NDdhYy03YmI0LTQxZDctOGI5OC03NTZmMWQwMjVhMGQiLCJpc3MiOiJodHRwczovL2xvZ2luLm1pY3Jvc29mdG9ubGluZS5jb20vMjc5YzdiMWItYmEwNi00MjdiLWE2ODEtYzhhNTQ5MmQyOTNkL3YyLjAiLCJpYXQiOjE2OTgyMzYwMzIsIm5iZiI6MTY5ODIzNjAzMiwiZXhwIjoxNjk4MjM5OTMyLCJhaW8iOiJFMkZnWUxqU203TTd2cTNNV09tbWMzaG9lZWd0NzVlY0QxMFYyM01EU2srSlBjbytVQW9BIiwiYXpwIjoiNjI3NzQ3YWMtN2JiNC00MWQ3LThiOTgtNzU2ZjFkMDI1YTBkIiwiYXpwYWNyIjoiMSIsInJoIjoiMC5BWUlBRzN1Y0p3YTZlMEttZ2NpbFNTMHBQYXhIZDJLMGU5ZEJpNWgxYngwQ1dnMkNBQUEuIiwidGlkIjoiMjc5YzdiMWItYmEwNi00MjdiLWE2ODEtYzhhNTQ5MmQyOTNkIiwidXRpIjoiRGdnZHVrRThaa3VnR2s0UWtXMHpBQSIsInZlciI6IjIuMCJ9.pdJNV8sxJWML4IVNv1iU7LtXpFg4rPbnUFUD8na_bPlrdgfKfd6SawQNHKquh1jaOI8sx1Gf5NGkaawSSoNKVUVeXkM4ok8JTExocT3ALjoC-xZE_KSWAFG7of7AKcyZWCHBW_KOVQEItYYCUv5o4-rXmxak25rW7i8oNlfJf8_p8hGpRW9qbuCDweZL2yDYQSK_peLBRb_LZ5Y8KOCy590sMCJXO2xOULKUNP2WT5VD6E_pIVwpC9zjoGD0e0Huzd_Hw4jZM6Z1dmcmNZRtPaswkjHPldQPI7MYjGKNTXe_wyuzPU4oD2zJgucOvk2XzBZiBy_NJiFosWgcuDZ_jQ"
           const headers = {
             Authorization: `Bearer ${token}`,
             'Content-Type': 'application/json'
           };
-            const response:  AxiosResponse<any> = await axios.post("https://apitest.nibss-plc.com.ng/nqr/v2/Gateway/create_merchant", payload, {headers})
-            const data = response.data;
-            console.log(data)
-            if (data.ReturnCode == "Success") {
-            return data
-          } else {
-            throw new Error(`Error querying account ${data.ReturnMsg}`)
-          }
-        } catch (error:any) {
-            console.log('from catch', error?.response?.data)
-            throw error
-        }
-    }
-
-    static async bindAccount<T>(payload: MerchantInfo): Promise<any> {
-
-        try {
-            const baseUrl = process.env.BASE_URL as string
-            const http = axios.create({ baseURL: baseUrl })
-            console.log(baseUrl)
-            const response:  AxiosResponse<T, any> = await axios.post(" https://apitest.nibss-plc.com.ng/nqr/v2/Gateway/binding_collection_account", payload)
-            console.log('from try', response?.data)
+         const response:  AxiosResponse< any> = await axios.post(url, payload, { headers })
+         console.log(response.data)
+         console.log(response.status)
             return response
-          } catch (error: any) {
-            console.log('from catch', error?.response?.data)
-            throw error
-        }  
-    }
-
-    static async createSubMerchAccount<T>(payload: SubMerchantPayload): Promise<any> {
-        try {
-            const baseUrl = process.env.BASE_URL as string
-            const http = axios.create({ baseURL: baseUrl })
-            console.log(baseUrl)
-            const response:  AxiosResponse<T, any> = await axios.post("https://apitest.nibss-plc.com.ng/nqr/v2/Gateway/create_sub_merchant", payload)
-            console.log('from try', response?.data)
-            return response
-          } catch (error: any) {
-            console.log('from catch', error?.response?.data)
-            throw error
-        }  
-    }
-
-    static async getMerchTxnRecord<T>(payload): Promise<any> {
-      try {
-        const baseUrl = process.env.BASE_URL as string
-        const http = axios.create({ baseURL: baseUrl })
-            console.log(baseUrl)
-            const response:  AxiosResponse<T, any> = await axios.post("https://apitest.nibss-plc.com.ng/nqr/v2/Gateway/query_mer_transaction", payload)
-            console.log('from try', response?.data)
-            return response
-      } catch (error) {
-        if (axios.isAxiosError(error)) {
-            console.log(`Axios Error: ${error.message}`)
-            throw new Error(`Axios Error: ${error.message}`);
-          } else {
-            throw error;
-      }
-    }
-  }
-
-  static async createMerchantsInBatch<T>(payload): Promise<any> {
-     try {
-       const baseUrl = process.env.BASE_URL as string
-       const http = axios.create({ baseURL: baseUrl })
-          console.log(baseUrl)
-          const response:  AxiosResponse<T, any> = await axios.post("https://apitest.nibss-plc.com.ng/nqr/v2/Gateway/batch_create_merchant", payload)
-          console.log('from try', response?.data)
-          return response
-      } catch (error) {
-        if (axios.isAxiosError(error)) {
-          console.log(`Axios Error: ${error.message}`)
-          throw new Error(`Axios Error: ${error.message}`);
-          } else {
-            throw error;
-      }
-    }
-  }
-
-  static async createSubMerchantsInBatch<T>(payload): Promise<any> {
-    try {
-      const baseUrl = process.env.BASE_URL as string
-      const http = axios.create({ baseURL: baseUrl })
-         console.log(baseUrl)
-         const response:  AxiosResponse<T, any> = await axios.post("https://apitest.nibss-plc.com.ng/nqr/v2/Gateway/batch_create_sub_merchant", payload)
-         console.log('from try', response?.data)
-         return response
-     } catch (error) {
-       if (axios.isAxiosError(error)) {
-         console.log(`Axios Error: ${error.message}`)
-         throw new Error(`Axios Error: ${error.message}`);
-         } else {
-           throw error;
-     }
+     }   catch (error:any) {
+           console.log('from catch', error?.response?.data)
+           return error
    }
- }
+  }
+
+  static async sendWebookNotification<T>(url: string, payload: object, signatureKey: string): Promise<AxiosResponse<T>> {
+    const http = axios.create({
+        headers: {
+            'signature-key': signatureKey
+        }
+    })
+    const response: AxiosResponse<T, any> = await http.post(url, payload);
+    return response
+  }
+
 }

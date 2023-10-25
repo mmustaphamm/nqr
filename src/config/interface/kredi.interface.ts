@@ -26,6 +26,9 @@ export interface ISettlementAccount {
     }
 }
 
-export interface baseUrl {
-    userService: string
+export interface IbaseUrl {
+    userService: string,
+    cbaBaseUrl: string,
+    cbaAuth: string,
+    cbaHeader: string
 }

@@ -1,7 +1,7 @@
 import { Redis } from 'ioredis'
 import db from "../../config/db";
 
-const redis = new Redis(db.redisOptions);
+const redis = new Redis();
 
 (async () => {
     if (!redis) {
@@ -31,33 +31,34 @@ export class cache {
 
     static async get(key: string) {
         try {
-            const cacheResults = await redis.get(key);
-            if (cacheResults && typeof cacheResults == 'string') {
-                return JSON.parse(cacheResults);
-            } else {
-                return null
-            }
-        } catch (error) {
-            console.error('redis get error', error);
+          const cacheResults = await redis.get(key);
+          if (cacheResults && typeof cacheResults == 'string') {
+            return JSON.parse(cacheResults);
+          } else {
             return null;
+          }
+        } catch (error) {
+          console.error('redis get error', error);
+          return null;
         }
-    }
+      }
+      
 
-    static async set(key: string, value:any, ttl = null) {
-        if (ttl) {
-            await redis.set(key, JSON.stringify(value), "EX", ttl); // await redis.expire(key, ttl)
+    static async set(key: string, value:any, ttl?: string | number | null) {
+        if (ttl === undefined || ttl === null) {
+            await redis.set(key, JSON.stringify(value)); 
             console.log(await redis.ttl(key));
         } else {
-            await redis.set(key, JSON.stringify(value));
+            await redis.setex(key, ttl, value);
         }
     }
 
-    static async delete(key:any) {
+    static async delete(key) {
         await redis.del(key);
         console.log(`${key} is deleted`)
     }
 
-    static async getExpiry(key:any) {
+    static async getExpiry(key) {
         redis.ttl(key, (err, result) => {
             if (err) {
                 console.error(err);
@@ -67,5 +68,6 @@ export class cache {
         });
     }
 }
+
 
 export default redis

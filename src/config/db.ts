@@ -1,7 +1,10 @@
-import { Merchants } from "../features/merchant/merchant.entity"
+import { Merchants } from "../features/gateway/merchant.entity"
 import { IConnection, IORMMapper, Iredis } from "./interface/db.interface"
 import * as dotenv from "dotenv"
-import { SubMerchants } from "../features/merchant/submerchant.entity"
+import { SubMerchants } from "../features/gateway/submerchant.entity"
+import { PaymentTransaction } from "../features/paymentTransaction/paymentTransaction.entity"
+import { GeneratedQRCode } from "../features/qrCode/qrCode.entity"
+import { Webhook } from "../features/webhook/webhook.entity"
 
 dotenv.config()
 
@@ -30,7 +33,7 @@ const mapper: IORMMapper = {
         database: process.env.DB_DATABASE as string,
         synchronize: true, // please never turn this to true
         logging: false,
-        entities: [Merchants, SubMerchants],
+        entities: [Merchants, SubMerchants, Webhook, PaymentTransaction, GeneratedQRCode],
         migrations: [],
         migrationsTableName: "migration_table",
         subscribers: [],
